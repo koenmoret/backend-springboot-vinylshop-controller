@@ -1,33 +1,57 @@
-HELP.md
-target/
-.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+# ------------------------------------------------------------
+# AHA RAPPORTAGE PLUGIN - .gitignore
+# ------------------------------------------------------------
 
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
-
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
-
-### VS Code ###
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
 .vscode/
+*.iml
+
+# Moodle & PHP
+config.php
+config.php.local
+localcache/
+muc/
+cache/
+sessions/
+dataroot/
+*.log
+*.tmp
+*.bak
+
+# Composer / npm (indien ooit toegevoegd)
+vendor/
+node_modules/
+composer.lock
+package-lock.json
+
+# Build / export bestanden
+*.zip
+*.tar.gz
+*.rar
+
+# Editor backups
+*~
+*.swp
+*.swo
+
+# PHPStorm meta / tests
+.phpunit.result.cache
+tests/coverage/
+coverage.xml
+
+# Logs en tijdelijke rapportages
+report_*.xlsx
+export_*.csv
+export_*.xlsx
+*.xls
+*.csv
+
+# OS specifieke
+ehthumbs.db
+desktop.ini
+
+# Git intern
+.gitignore
