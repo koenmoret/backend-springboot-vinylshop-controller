@@ -1,8 +1,8 @@
-package com.vinylwebshop.vinylcollection.entities;
+package com.vinylWebshop.vinylcollectie.entities;
 
-public class Genre {
+public class GenreEntity {
     /**
-     * Dit is een mock-model voor de Genre.
+     * Dit is een mock-model voor de GenreEntity.
      * In de volgende les ga je hier een echte entiteit voor maken.
      */
     private Long id;
