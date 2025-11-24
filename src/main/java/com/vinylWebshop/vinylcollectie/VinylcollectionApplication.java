@@ -1,4 +1,4 @@
-package com.vinylwebshop.vinylcollection;
+package com.vinylWebshop.vinylcollectie;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

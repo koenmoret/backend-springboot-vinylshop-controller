@@ -1,4 +1,4 @@
-package com.vinylwebshop.vinylcollection;
+package com.vinylWebshop.vinylcollectie;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
