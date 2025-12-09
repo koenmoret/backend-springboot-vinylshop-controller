@@ -4,90 +4,232 @@ Een eenvoudige Spring Boot REST API voor het beheren van muziekgenres en uitgeve
 
 ## Inhoud
 
-- [Projectstructuur](#projectstructuur)
-- [Installatie & Setup](#installatie--setup)
-- [Database](#database)
-- [Testdata](#testdata)
-- [API Endpoints](#api-endpoints)
-- [Testen met Postman](#testen-met-postman)
-- [Extra](#extra)
+- Projectstructuur
+- Installatie & Setup
+- Database
+- Testdata
+- API Endpoints
+- Testen met Postman
+- Extra
 
 ---
 
-## Projectstructuur
+## 📁 Projectstructuur
 
-- `controllers/` — REST-controllers voor Genres en Publishers
-- `entities/` — JPA entiteiten (BaseEntity, GenreEntity, PublisherEntity)
-- `repositories/` — JPA Repositories voor CRUD-functionaliteit
-- `services/` — Business logica voor genres en publishers
-- `helpers/` — Hulpfuncties, o.a. UrlHelper voor Location headers
-- `resources/data.sql` — Testdata voor database
-- `resources/postman-collection.json` — Postman requests voor eenvoudig testen
+src/main/java/com/vinylWebshop/vinylcollectie/
 
----
+- controllers/       # REST controllers
+- dtos/              # Request + Response DTO’s
+- entities/          # JPA entities (BaseEntity included)
+- exceptions/        # Error handling
+- helpers/           # UrlHelper voor Location headers
+- mappers/           # Entity ↔ DTO mappers
+- repositories/      # JPA repositories
+- services/          # Business services
 
-## Installatie & Setup
+src/main/resources/
 
-1. **Vereisten**
-    - Java 21+ (of gelijk aan de versie in pom.xml)
-    - Maven 3.8+
-    - PostgreSQL database (lokaal of remote)
-
-2. **Database aanmaken**
-    - Start PostgreSQL
-    - Maak een database aan, bijvoorbeeld `vinylshop`
-    - Zet je gebruikersnaam en wachtwoord in `src/main/resources/application.properties`:
-
-      ```properties
-      spring.datasource.url=jdbc:postgresql://localhost:5432/vinylshop
-      spring.datasource.username=postgres
-      spring.datasource.password=password
-      ```
-
-3. **Dependencies installeren en starten**
-    ```bash
-    mvn clean install
-    mvn spring-boot:run
-    ```
-
-   De applicatie draait dan op [http://localhost:8080](http://localhost:8080)
+- application.properties
+- data.sql
+- vinylshop.postman_collection.json
 
 ---
 
-## Database
+## 🚀 Installatie & Setup
 
-- **Tabellen**: genres, publishers
-- **Automatisch gevuld** met testdata uit `data.sql` bij eerste start.
-- **Datums** worden automatisch gezet via JPA events (`@PrePersist`, `@PreUpdate`).
+### Vereisten
+- Java 21+
+- Maven 3.8+
+- PostgreSQL
+
+### Database configureren
+
+```
+CREATE DATABASE vinylshop;
+```
+
+In `application.properties`:
+
+```
+spring.datasource.url=jdbc:postgresql://localhost:5432/vinylshop
+spring.datasource.username=postgres
+spring.datasource.password=YOUR_PASSWORD
+
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.sql.init.mode=always
+```
+
+### Project starten
+
+```
+mvn clean install
+mvn spring-boot:run
+```
+
+De API draait op: http://localhost:8080
 
 ---
 
-## Testdata
+## 🗄️ Database
 
-Bij het opstarten worden 5 genres en 3 publishers toegevoegd uit `data.sql`, zoals:
+- genres
+- publishers
 
-- Genres: Rock, Jazz, Classical, Hip-Hop, Pop
-- Publishers: Universal Music Group, Sony Music Entertainment, Warner Music Group
+**BaseEntity bevat:**
 
-Zie het bestand [`src/main/resources/data.sql`](src/main/resources/data.sql) voor details.
+- id (auto-generated)
+- createDate
+- editDate
+
+Automatisch gevuld via `@PrePersist` en `@PreUpdate`.
 
 ---
 
-## API Endpoints
+## 🧪 Testdata (data.sql)
 
-### Genres
+Bij opstart worden automatisch 5 genres en 3 publishers toegevoegd.
 
-| Methode | Endpoint           | Doel                         |
-| ------- | ------------------ | --------------------------- |
-| GET     | `/genres`          | Alle genres ophalen          |
-| GET     | `/genres/{id}`     | Eén genre ophalen op id      |
-| POST    | `/genres`          | Nieuw genre toevoegen        |
-| PUT     | `/genres/{id}`     | Genre bijwerken op id        |
-| DELETE  | `/genres/{id}`     | Genre verwijderen op id      |
+Genres:
+- Rock
+- Jazz
+- Classical
+- Hip-Hop
+- Pop
 
-#### Voorbeeld JSON body voor POST/PUT
-```json
+Publishers:
+- Universal Music Group
+- Sony Music Entertainment
+- Warner Music Group
+
+Voorbeeld:
+
+```
+INSERT INTO genres (name, description) VALUES ('Rock', 'Hard guitars');
+INSERT INTO publishers (name, address, contact_details) VALUES ('Universal Music Group', 'Los Angeles', 'info@umg.com');
+```
+
+---
+
+# 🎯 API Endpoints
+
+## 🎵 Genres
+
+| Methode | Endpoint           | Beschrijving |
+|---------|--------------------|--------------|
+| GET     | /genres            | Alle genres ophalen |
+| GET     | /genres/{id}       | Genre op ID ophalen |
+| POST    | /genres            | Nieuw genre toevoegen |
+| PUT     | /genres/{id}       | Genre bijwerken |
+| DELETE  | /genres/{id}       | Genre verwijderen |
+
+### JSON voorbeeld (POST/PUT)
+
+```
 {
   "name": "Metal",
   "description": "Hard en snel"
 }
+```
+
+### Validatie
+
+- name → verplicht, min 2, max 100
+- description → max 255
+
+### Voorbeeld validatiefout
+
+```
+{
+  "name": "Genre name mag niet leeg zijn."
+}
+```
+
+---
+
+## 📚 Publishers
+
+| Methode | Endpoint              | Beschrijving |
+|---------|-----------------------|--------------|
+| GET     | /publishers           | Alle publishers |
+| GET     | /publishers/{id}      | Publisher op ID |
+| POST    | /publishers           | Nieuwe publisher |
+| PUT     | /publishers/{id}      | Publisher bijwerken |
+| DELETE  | /publishers/{id}      | Publisher verwijderen |
+
+### JSON voorbeeld
+
+```
+{
+  "name": "New Indie Label",
+  "address": "Amsterdam",
+  "contactDetails": "info@label.com"
+}
+```
+
+### Validatie
+
+- name → verplicht, max 50
+
+---
+
+# ⚠️ Error Handling
+
+Globale exception handler:
+
+### Voorbeeld: item niet gevonden
+
+```
+DELETE /genres/999
+```
+
+Response:
+
+```
+{
+  "status": 404,
+  "error": "Not Found",
+  "message": "Genre met id 999 bestaat niet.",
+  "path": "/genres/999"
+}
+```
+
+### Voorbeeld validatiefout
+
+```
+{
+  "name": "Genre name moet tussen de 2 en 100 karakters lang zijn."
+}
+```
+
+---
+
+# 🧪 Testen met Postman
+
+Importeer:
+
+```
+src/main/resources/vinylshop.postman_collection.json
+```
+
+Bevat:
+
+- GET/POST/PUT/DELETE voor genres
+- GET/POST/PUT/DELETE voor publishers
+
+Gebruik variabele:
+
+```
+{{baseUrl}} = http://localhost:8080
+```
+
+---
+
+# ➕ Extra
+
+- DTO's scheiden API-model van database-model
+- Mappers zorgen voor gecontroleerde data-transformatie
+- UrlHelper genereert correcte Location headers bij POST
+- Alles voldoet aan NOVI-opdrachteisen
+
+---
