@@ -1,83 +1,75 @@
 package com.vinylWebshop.vinylcollectie.controllers;
 
-import com.vinylWebshop.vinylcollectie.entities.PublisherEntity;
+import com.vinylWebshop.vinylcollectie.dtos.publisher.PublisherRequestDTO;
+import com.vinylWebshop.vinylcollectie.dtos.publisher.PublisherResponseDTO;
 import com.vinylWebshop.vinylcollectie.services.PublisherService;
+import com.vinylWebshop.vinylcollectie.helpers.UrlHelper;
+
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * Controller voor het beheren van uitgevers (PublisherEntity).
- * Maakt gebruik van RESTful endpoints.
- */
-@RestController // Geeft aan dat deze klasse een REST-controller is (JSON in/uit)
-@RequestMapping("/publishers") // Alle endpoints beginnen met /publishers
+@RestController
+@RequestMapping("/publishers")
 public class PublisherController {
 
     private final PublisherService publisherService;
+    private final UrlHelper urlHelper;
 
-    /**
-     * Constructor-injectie van de service.
-     */
-    public PublisherController(PublisherService publisherService) {
+    public PublisherController(PublisherService publisherService, UrlHelper urlHelper) {
         this.publisherService = publisherService;
+        this.urlHelper = urlHelper;
     }
 
     /**
-     * Haal een lijst van alle uitgevers op.
-     * Endpoint: GET /publishers
-     */
-    @GetMapping
-    public ResponseEntity<List<PublisherEntity>> getAllPublishers() {
-        List<PublisherEntity> publishers = publisherService.findAllPublishers();
-        return ResponseEntity.ok(publishers); // HTTP 200 OK
-    }
-
-    /**
-     * Haal één uitgever op via zijn id.
-     * Endpoint: GET /publishers/{id}
-     */
-    @GetMapping("/{id}")
-    public ResponseEntity<PublisherEntity> getPublisherById(@PathVariable Long id) {
-        PublisherEntity publisher = publisherService.findPublisherById(id);
-        if (publisher == null) {
-            return ResponseEntity.notFound().build(); // HTTP 404 Not Found als niet gevonden
-        }
-        return ResponseEntity.ok(publisher); // HTTP 200 OK
-    }
-
-    /**
-     * Maak een nieuwe uitgever aan.
-     * Endpoint: POST /publishers
+     * CREATE
      */
     @PostMapping
-    public ResponseEntity<PublisherEntity> createPublisher(@RequestBody PublisherEntity input) {
-        PublisherEntity saved = publisherService.createPublisher(input);
-        // Je kunt hier eventueel een Location-header toevoegen met de url van de nieuwe resource
-        return ResponseEntity.status(201).body(saved); // HTTP 201 Created
+    public ResponseEntity<PublisherResponseDTO> createPublisher(
+            @RequestBody @Valid PublisherRequestDTO dto) {
+
+        PublisherResponseDTO newPublisher = publisherService.createPublisher(dto);
+
+        return ResponseEntity.created(urlHelper.getCurrentUrlWithId(newPublisher.getId()))
+                .body(newPublisher);
     }
 
     /**
-     * Werk een bestaande uitgever bij.
-     * Endpoint: PUT /publishers/{id}
+     * READ ONE
+     */
+    @GetMapping("/{id}")
+    public ResponseEntity<PublisherResponseDTO> getPublisher(@PathVariable Long id) {
+        return ResponseEntity.ok(publisherService.getPublisher(id));
+    }
+
+    /**
+     * READ ALL
+     */
+    @GetMapping
+    public ResponseEntity<List<PublisherResponseDTO>> getAllPublishers() {
+        return ResponseEntity.ok(publisherService.getAllPublishers());
+    }
+
+    /**
+     * UPDATE
      */
     @PutMapping("/{id}")
-    public ResponseEntity<PublisherEntity> updatePublisher(@PathVariable Long id, @RequestBody PublisherEntity input) {
-        PublisherEntity updated = publisherService.updatePublisher(id, input);
-        if (updated == null) {
-            return ResponseEntity.notFound().build(); // HTTP 404 Not Found als niet gevonden
-        }
-        return ResponseEntity.ok(updated); // HTTP 200 OK
+    public ResponseEntity<PublisherResponseDTO> updatePublisher(
+            @PathVariable Long id,
+            @RequestBody @Valid PublisherRequestDTO dto) {
+
+        PublisherResponseDTO updated = publisherService.updatePublisher(id, dto);
+        return ResponseEntity.ok(updated);
     }
 
     /**
-     * Verwijder een uitgever op basis van id.
-     * Endpoint: DELETE /publishers/{id}
+     * DELETE
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePublisher(@PathVariable Long id) {
         publisherService.deletePublisher(id);
-        return ResponseEntity.noContent().build(); // HTTP 204 No Content
+        return ResponseEntity.noContent().build();
     }
 }

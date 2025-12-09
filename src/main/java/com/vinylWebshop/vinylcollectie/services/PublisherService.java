@@ -1,77 +1,71 @@
 package com.vinylWebshop.vinylcollectie.services;
 
+import com.vinylWebshop.vinylcollectie.dtos.publisher.PublisherRequestDTO;
+import com.vinylWebshop.vinylcollectie.dtos.publisher.PublisherResponseDTO;
 import com.vinylWebshop.vinylcollectie.entities.PublisherEntity;
+import com.vinylWebshop.vinylcollectie.mappers.PublisherDTOMapper;
 import com.vinylWebshop.vinylcollectie.repositories.PublisherRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-/**
- * Serviceklasse voor PublisherEntity.
- * Hier zet je alle logica die te maken heeft met uitgevers beheren.
- */
 @Service
 public class PublisherService {
 
     private final PublisherRepository publisherRepository;
+    private final PublisherDTOMapper publisherDTOMapper;
 
-    /**
-     * Constructor-injectie van de repository.
-     */
-    public PublisherService(PublisherRepository publisherRepository) {
+    public PublisherService(PublisherRepository publisherRepository, PublisherDTOMapper publisherDTOMapper) {
         this.publisherRepository = publisherRepository;
+        this.publisherDTOMapper = publisherDTOMapper;
     }
 
     /**
-     * Haal alle uitgevers op uit de database.
+     * Maak nieuwe publisher aan
      */
-    public List<PublisherEntity> findAllPublishers() {
-        return publisherRepository.findAll();
+    public PublisherResponseDTO createPublisher(PublisherRequestDTO dto) {
+        PublisherEntity entity = publisherDTOMapper.mapToEntity(dto);
+        entity = publisherRepository.save(entity);
+        return publisherDTOMapper.mapToDto(entity);
     }
 
     /**
-     * Haal één uitgever op op basis van zijn id.
-     * Als de uitgever niet bestaat, returnt de methode null.
+     * Ophalen van één publisher
      */
-    public PublisherEntity findPublisherById(Long id) {
-        return publisherRepository.findById(id).orElse(null);
+    public PublisherResponseDTO getPublisher(Long id) {
+        PublisherEntity entity = publisherRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Publisher not found: " + id));
+        return publisherDTOMapper.mapToDto(entity);
     }
 
     /**
-     * Maak een nieuwe uitgever aan en sla deze op in de database.
+     * Ophalen van alle publishers
      */
-    public PublisherEntity createPublisher(PublisherEntity input) {
-        return publisherRepository.save(input);
+    public List<PublisherResponseDTO> getAllPublishers() {
+        List<PublisherEntity> entities = publisherRepository.findAll();
+        return publisherDTOMapper.mapToDto(entities);
     }
 
     /**
-     * Werk een bestaande uitgever bij (op basis van id).
-     * Alleen naam, adres en contactDetails kunnen gewijzigd worden.
-     * Als de uitgever niet bestaat, returnt deze methode null.
+     * Updaten van een publisher
      */
-    public PublisherEntity updatePublisher(Long id, PublisherEntity input) {
-        PublisherEntity existing = getPublisherById(id);
-        if (existing == null) {
-            return null;
-        }
-        existing.setName(input.getName());
-        existing.setAddress(input.getAddress());
-        existing.setContactDetails(input.getContactDetails());
-        return publisherRepository.save(existing);
+    public PublisherResponseDTO updatePublisher(Long id, PublisherRequestDTO dto) {
+        PublisherEntity entity = publisherRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Publisher not found: " + id));
+
+        entity.setName(dto.getName());
+        entity.setAddress(dto.getAddress());
+        entity.setContactDetails(dto.getContactDetails());
+
+        PublisherEntity updated = publisherRepository.save(entity);
+
+        return publisherDTOMapper.mapToDto(updated);
     }
 
     /**
-     * Verwijder een uitgever op basis van id.
-     * Als de uitgever niet bestaat, gebeurt er niks.
+     * Verwijderen van een publisher
      */
     public void deletePublisher(Long id) {
         publisherRepository.deleteById(id);
-    }
-
-    /**
-     * Private helper-methode om een uitgever veilig op te halen.
-     */
-    private PublisherEntity getPublisherById(Long id) {
-        return publisherRepository.findById(id).orElse(null);
     }
 }

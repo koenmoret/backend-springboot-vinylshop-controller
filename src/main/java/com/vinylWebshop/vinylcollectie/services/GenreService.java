@@ -1,82 +1,82 @@
 package com.vinylWebshop.vinylcollectie.services;
 
+import com.vinylWebshop.vinylcollectie.dtos.genre.GenreRequestDTO;
+import com.vinylWebshop.vinylcollectie.dtos.genre.GenreResponseDTO;
 import com.vinylWebshop.vinylcollectie.entities.GenreEntity;
+import com.vinylWebshop.vinylcollectie.exceptions.GenreNotFoundException;
+import com.vinylWebshop.vinylcollectie.mappers.GenreDTOMapper;
 import com.vinylWebshop.vinylcollectie.repositories.GenreRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
-/**
- * Serviceklasse voor GenreEntity.
- * Hier zet je alle logica die te maken heeft met genres beheren.
- */
 @Service
 public class GenreService {
 
     private final GenreRepository genreRepository;
+    private final GenreDTOMapper genreDTOMapper;
 
     /**
-     * Constructor-injectie van de repository.
-     * Spring zorgt zelf voor het juiste object.
+     * Injecteer de repository én de mapper.
+     * Spring zorgt dat beide beans beschikbaar zijn.
      */
-    public GenreService(GenreRepository genreRepository) {
+    public GenreService(GenreRepository genreRepository, GenreDTOMapper genreDTOMapper) {
         this.genreRepository = genreRepository;
+        this.genreDTOMapper = genreDTOMapper;
     }
 
     /**
-     * Haal alle genres op uit de database.
+     * Maak een nieuw genre aan.
+     *
+     * RequestDTO → Entity → Save → ResponseDTO
      */
-    public List<GenreEntity> findAllGenres() {
-        return genreRepository.findAll();
+    public GenreResponseDTO createGenre(GenreRequestDTO genreDTO) {
+        GenreEntity genreEntity = genreDTOMapper.mapToEntity(genreDTO);
+        genreEntity = genreRepository.save(genreEntity);
+        return genreDTOMapper.mapToDto(genreEntity);
     }
 
     /**
-     * Haal één genre op op basis van zijn id.
-     * Als het genre niet bestaat, returnt de methode null.
+     * Haal één genre op
      */
-    public GenreEntity findGenreById(Long id) {
-        // Optioneel: je kunt hier ook een exception gooien of een Optional teruggeven.
-        return genreRepository.findById(id).orElse(null);
+    public GenreResponseDTO getGenre(Long id) {
+        GenreEntity entity = genreRepository.findById(id)
+                .orElseThrow(() -> new GenreNotFoundException(id));
+
+
+        return genreDTOMapper.mapToDto(entity);
     }
 
     /**
-     * Maak een nieuw genre aan en sla deze op in de database.
+     * Haal ALLE genres op
+     * Entity → DTO lijst
      */
-    public GenreEntity createGenre(GenreEntity input) {
-        // Het id wordt automatisch gevuld door de database. (Input.id mag null zijn.)
-        return genreRepository.save(input);
+    public List<GenreResponseDTO> getAllGenres() {
+        List<GenreEntity> entities = genreRepository.findAll();
+        return genreDTOMapper.mapToDto(entities);
     }
 
     /**
-     * Werk een bestaand genre bij (op basis van id).
-     * Alleen de naam en omschrijving kunnen gewijzigd worden.
-     * Als het genre niet bestaat, returnt deze methode null.
+     * Update een genre
      */
-    public GenreEntity updateGenre(Long id, GenreEntity input) {
-        GenreEntity existing = getGenreById(id); // Private helper
-        if (existing == null) {
-            return null; // Kan eventueel vervangen worden door een exception
-        }
-        existing.setName(input.getName());
-        existing.setDescription(input.getDescription());
-        // id, createDate en editDate worden niet handmatig aangepast!
-        return genreRepository.save(existing);
+    public GenreResponseDTO updateGenre(Long id, GenreRequestDTO dto) {
+        GenreEntity entity = genreRepository.findById(id)
+                .orElseThrow(() -> new GenreNotFoundException(id));
+
+
+        // Update alleen de velden uit het DTO
+        entity.setName(dto.getName());
+        entity.setDescription(dto.getDescription());
+
+        GenreEntity updated = genreRepository.save(entity);
+
+        return genreDTOMapper.mapToDto(updated);
     }
 
     /**
-     * Verwijder een genre op basis van zijn id.
-     * Als het genre niet bestaat, gebeurt er niks.
+     * Verwijderen → return niets
      */
     public void deleteGenre(Long id) {
         genreRepository.deleteById(id);
-    }
-
-    /**
-     * Private helper-methode om een genre veilig op te halen.
-     * Handig om dubbele code te voorkomen.
-     */
-    private GenreEntity getGenreById(Long id) {
-        return genreRepository.findById(id).orElse(null);
     }
 }

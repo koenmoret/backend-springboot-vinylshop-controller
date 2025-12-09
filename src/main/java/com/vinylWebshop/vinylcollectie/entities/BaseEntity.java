@@ -4,38 +4,38 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 /**
- * BaseEntity is een abstracte klasse die gedeelde velden bevat voor alle entiteiten:
- * - id: unieke sleutel (primaire key)
- * - createDate: aanmaakdatum van het record
- * - editDate: laatste wijzigingsdatum van het record
+ * BaseEntity bevat gedeelde velden voor alle entiteiten:
+ * - id: automatisch gegenereerde primaire sleutel
+ * - createDate: aanmaakdatum
+ * - editDate: wijzigingsdatum
  *
- * Door @MappedSuperclass krijgen subklassen deze velden, zonder dat BaseEntity zelf een tabel krijgt.
+ * Dankzij @MappedSuperclass krijgt elke sub-entiteit deze velden,
+ * zonder dat BaseEntity zelf een tabel wordt.
  */
 @MappedSuperclass
 public abstract class BaseEntity {
 
     /**
-     * Het unieke id voor elk record.
-     * Wordt automatisch gegenereerd door de database (auto-increment).
+     * Primaire sleutel. Wordt automatisch door de database gegenereerd.
+     * Geen setter → ID wordt nooit handmatig door code gezet.
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     /**
-     * Het tijdstip waarop het record voor het eerst is opgeslagen in de database.
+     * Datum waarop het record is aangemaakt.
      */
     private LocalDateTime createDate;
 
     /**
-     * Het tijdstip waarop het record voor het laatst is bijgewerkt.
+     * Datum waarop het record voor het laatst is gewijzigd.
      */
     private LocalDateTime editDate;
 
     /**
-     * Deze methode wordt automatisch aangeroepen door JPA/Hibernate
-     * vlak voordat een nieuw record wordt weggeschreven naar de database.
-     * Beide datumvelden worden dan gevuld met het huidige tijdstip.
+     * Wordt aangeroepen vóór INSERT.
+     * Zet createDate + editDate automatisch.
      */
     @PrePersist
     protected void onCreate() {
@@ -44,44 +44,34 @@ public abstract class BaseEntity {
     }
 
     /**
-     * Deze methode wordt automatisch aangeroepen door JPA/Hibernate
-     * vlak voordat een bestaand record wordt bijgewerkt (update).
-     * Alleen het editDate-veld wordt dan geüpdatet naar het huidige tijdstip.
+     * Wordt aangeroepen vóór UPDATE.
+     * Update alleen de editDate.
      */
     @PreUpdate
     protected void onUpdate() {
         this.editDate = LocalDateTime.now();
     }
 
-    // ----------- Getters en setters -----------
+    // ----------- Alleen getters (geen setter voor ID!) -----------
 
-    /**
-     * Retourneert het id van het record.
-     */
-    public Long getId() { return id; }
+    public Long getId() {
+        return id;
+    }
 
-    /**
-     * Retourneert de aanmaakdatum van het record.
-     */
-    public LocalDateTime getCreateDate() { return createDate; }
+    public LocalDateTime getCreateDate() {
+        return createDate;
+    }
 
-    /**
-     * Retourneert de laatste wijzigingsdatum van het record.
-     */
-    public LocalDateTime getEditDate() { return editDate; }
+    public LocalDateTime getEditDate() {
+        return editDate;
+    }
 
-    /**
-     * Stelt het id van het record in.
-     */
-    public void setId(Long id) { this.id = id; }
+    // Deze setters zijn OK voor datumvelden — JPA gebruikt deze indien nodig.
+    public void setCreateDate(LocalDateTime createDate) {
+        this.createDate = createDate;
+    }
 
-    /**
-     * Stelt de aanmaakdatum in.
-     */
-    public void setCreateDate(LocalDateTime createDate) { this.createDate = createDate; }
-
-    /**
-     * Stelt de wijzigingsdatum in.
-     */
-    public void setEditDate(LocalDateTime editDate) { this.editDate = editDate; }
+    public void setEditDate(LocalDateTime editDate) {
+        this.editDate = editDate;
+    }
 }
