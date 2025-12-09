@@ -12,7 +12,7 @@ import java.util.List;
  * Maakt gebruik van RESTful endpoints.
  */
 @RestController // Geeft aan dat deze klasse een REST-controller is (JSON in/uit)
-@RequestMapping("/api/publishers") // Alle endpoints beginnen met /api/publishers
+@RequestMapping("/publishers") // Alle endpoints beginnen met /publishers
 public class PublisherController {
 
     private final PublisherService publisherService;
@@ -26,7 +26,7 @@ public class PublisherController {
 
     /**
      * Haal een lijst van alle uitgevers op.
-     * Endpoint: GET /api/publishers
+     * Endpoint: GET /publishers
      */
     @GetMapping
     public ResponseEntity<List<PublisherEntity>> getAllPublishers() {
@@ -36,7 +36,7 @@ public class PublisherController {
 
     /**
      * Haal één uitgever op via zijn id.
-     * Endpoint: GET /api/publishers/{id}
+     * Endpoint: GET /publishers/{id}
      */
     @GetMapping("/{id}")
     public ResponseEntity<PublisherEntity> getPublisherById(@PathVariable Long id) {
@@ -49,7 +49,7 @@ public class PublisherController {
 
     /**
      * Maak een nieuwe uitgever aan.
-     * Endpoint: POST /api/publishers
+     * Endpoint: POST /publishers
      */
     @PostMapping
     public ResponseEntity<PublisherEntity> createPublisher(@RequestBody PublisherEntity input) {
@@ -60,7 +60,7 @@ public class PublisherController {
 
     /**
      * Werk een bestaande uitgever bij.
-     * Endpoint: PUT /api/publishers/{id}
+     * Endpoint: PUT /publishers/{id}
      */
     @PutMapping("/{id}")
     public ResponseEntity<PublisherEntity> updatePublisher(@PathVariable Long id, @RequestBody PublisherEntity input) {
@@ -73,7 +73,7 @@ public class PublisherController {
 
     /**
      * Verwijder een uitgever op basis van id.
-     * Endpoint: DELETE /api/publishers/{id}
+     * Endpoint: DELETE /publishers/{id}
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePublisher(@PathVariable Long id) {
