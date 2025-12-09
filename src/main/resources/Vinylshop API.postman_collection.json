@@ -1,0 +1,230 @@
+{
+	"info": {
+		"_postman_id": "bf244a90-5894-4130-bd1b-68f77ea7fc12",
+		"name": "Vinylshop API",
+		"description": "Test alle CRUD endpoints voor genres en publishers",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "32547774",
+		"_collection_link": "https://postman-demo-7160.postman.co/workspace/vinylWebshop~6349d1fe-5c99-46e6-a1c9-91ceb211f68a/collection/32547774-bf244a90-5894-4130-bd1b-68f77ea7fc12?action=share&source=collection_link&creator=32547774"
+	},
+	"item": [
+		{
+			"name": "Genres - alle genres ophalen",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/genres",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"genres"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Genres - genre op id ophalen",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/genres/1",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"genres",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Genres - nieuw genre aanmaken",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"Reggae\",\n  \"description\": \"Muziek uit Jamaica met relaxte beat\" \n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/genres",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"genres"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Genres - genre aanpassen",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"Rock vernieuwd\",\n  \"description\": \"Aangepaste omschrijving\" \n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/genres/1",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"genres",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Genres - genre verwijderen",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/genres/1",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"genres",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Publishers - alle publishers ophalen",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/publishers",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"publishers"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Publishers - publisher op id ophalen",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/publishers/1",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"publishers",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Publishers - nieuwe publisher aanmaken",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"EMI Music\",\n  \"address\": \"Damrak 1, Amsterdam\",\n  \"contactDetails\": \"info@emi.com, 020-9998888\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/publishers",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"publishers"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Publishers - publisher aanpassen",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"Universal Music Group vernieuwd\",\n  \"address\": \"Nieuw adres\",\n  \"contactDetails\": \"nieuw@email.com, 020-7776666\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/publishers/1",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"publishers",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Publishers - publisher verwijderen",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/publishers/8",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"publishers",
+						"8"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080"
+		}
+	]
+}
