@@ -2,9 +2,11 @@ package com.vinylWebshop.vinylcollectie.services;
 
 import com.vinylWebshop.vinylcollectie.dtos.genre.GenreRequestDTO;
 import com.vinylWebshop.vinylcollectie.dtos.genre.GenreResponseDTO;
+import com.vinylWebshop.vinylcollectie.entities.AlbumEntity;
 import com.vinylWebshop.vinylcollectie.entities.GenreEntity;
-import com.vinylWebshop.vinylcollectie.exceptions.GenreNotFoundException;
+import com.vinylWebshop.vinylcollectie.exceptions.ResourceNotFoundException;
 import com.vinylWebshop.vinylcollectie.mappers.GenreDTOMapper;
+import com.vinylWebshop.vinylcollectie.repositories.AlbumRepository;
 import com.vinylWebshop.vinylcollectie.repositories.GenreRepository;
 import org.springframework.stereotype.Service;
 
@@ -14,69 +16,63 @@ import java.util.List;
 public class GenreService {
 
     private final GenreRepository genreRepository;
-    private final GenreDTOMapper genreDTOMapper;
+    private final AlbumRepository albumRepository;
+    private final GenreDTOMapper genreMapper;
 
-    /**
-     * Injecteer de repository én de mapper.
-     * Spring zorgt dat beide beans beschikbaar zijn.
-     */
-    public GenreService(GenreRepository genreRepository, GenreDTOMapper genreDTOMapper) {
+    public GenreService(GenreRepository genreRepository, AlbumRepository albumRepository, GenreDTOMapper genreMapper) {
         this.genreRepository = genreRepository;
-        this.genreDTOMapper = genreDTOMapper;
+        this.albumRepository = albumRepository;
+        this.genreMapper = genreMapper;
     }
 
-    /**
-     * Maak een nieuw genre aan.
-     *
-     * RequestDTO → Entity → Save → ResponseDTO
-     */
-    public GenreResponseDTO createGenre(GenreRequestDTO genreDTO) {
-        GenreEntity genreEntity = genreDTOMapper.mapToEntity(genreDTO);
-        genreEntity = genreRepository.save(genreEntity);
-        return genreDTOMapper.mapToDto(genreEntity);
+    public List<GenreResponseDTO> getAll() {
+        return genreRepository.findAll()
+                .stream()
+                .map(genreMapper::toDto)
+                .toList();
     }
 
-    /**
-     * Haal één genre op
-     */
-    public GenreResponseDTO getGenre(Long id) {
+    public GenreResponseDTO getById(Long id) {
         GenreEntity entity = genreRepository.findById(id)
-                .orElseThrow(() -> new GenreNotFoundException(id));
-
-
-        return genreDTOMapper.mapToDto(entity);
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Genre %d niet gevonden".formatted(id)
+                ));
+        return genreMapper.toDto(entity);
     }
 
-    /**
-     * Haal ALLE genres op
-     * Entity → DTO lijst
-     */
-    public List<GenreResponseDTO> getAllGenres() {
-        List<GenreEntity> entities = genreRepository.findAll();
-        return genreDTOMapper.mapToDto(entities);
+    public GenreResponseDTO create(GenreRequestDTO request) {
+        GenreEntity entity = new GenreEntity();
+        genreMapper.copyToEntity(request, entity);
+
+        GenreEntity saved = genreRepository.save(entity);
+        return genreMapper.toDto(saved);
     }
 
-    /**
-     * Update een genre
-     */
-    public GenreResponseDTO updateGenre(Long id, GenreRequestDTO dto) {
+    public GenreResponseDTO update(Long id, GenreRequestDTO request) {
         GenreEntity entity = genreRepository.findById(id)
-                .orElseThrow(() -> new GenreNotFoundException(id));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Genre %d niet gevonden".formatted(id)
+                ));
 
-
-        // Update alleen de velden uit het DTO
-        entity.setName(dto.getName());
-        entity.setDescription(dto.getDescription());
-
-        GenreEntity updated = genreRepository.save(entity);
-
-        return genreDTOMapper.mapToDto(updated);
+        genreMapper.copyToEntity(request, entity);
+        GenreEntity saved = genreRepository.save(entity);
+        return genreMapper.toDto(saved);
     }
 
-    /**
-     * Verwijderen → return niets
-     */
-    public void deleteGenre(Long id) {
-        genreRepository.deleteById(id);
+    public void delete(Long id) {
+        GenreEntity genre = genreRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Genre %d niet gevonden".formatted(id)));
+
+        // Relatie verbreken (unidirectioneel)
+        List<AlbumEntity> albums = albumRepository.findByGenre_Id(id);
+        for (AlbumEntity album : albums) {
+            album.setGenre(null);
+            albumRepository.save(album);
+        }
+
+        // Genre verwijderen
+        genreRepository.delete(genre);
     }
+
 }

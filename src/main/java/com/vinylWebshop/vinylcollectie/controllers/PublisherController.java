@@ -2,9 +2,8 @@ package com.vinylWebshop.vinylcollectie.controllers;
 
 import com.vinylWebshop.vinylcollectie.dtos.publisher.PublisherRequestDTO;
 import com.vinylWebshop.vinylcollectie.dtos.publisher.PublisherResponseDTO;
-import com.vinylWebshop.vinylcollectie.services.PublisherService;
 import com.vinylWebshop.vinylcollectie.helpers.UrlHelper;
-
+import com.vinylWebshop.vinylcollectie.services.PublisherService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,53 +22,37 @@ public class PublisherController {
         this.urlHelper = urlHelper;
     }
 
-    /**
-     * CREATE
-     */
     @PostMapping
-    public ResponseEntity<PublisherResponseDTO> createPublisher(
-            @RequestBody @Valid PublisherRequestDTO dto) {
+    public ResponseEntity<PublisherResponseDTO> create(
+            @RequestBody @Valid PublisherRequestDTO request) {
 
-        PublisherResponseDTO newPublisher = publisherService.createPublisher(dto);
-
-        return ResponseEntity.created(urlHelper.getCurrentUrlWithId(newPublisher.getId()))
-                .body(newPublisher);
+        PublisherResponseDTO created = publisherService.create(request);
+        return ResponseEntity
+                .created(urlHelper.getCurrentUrlWithId(created.getId()))
+                .body(created);
     }
 
-    /**
-     * READ ONE
-     */
-    @GetMapping("/{id}")
-    public ResponseEntity<PublisherResponseDTO> getPublisher(@PathVariable Long id) {
-        return ResponseEntity.ok(publisherService.getPublisher(id));
-    }
-
-    /**
-     * READ ALL
-     */
     @GetMapping
-    public ResponseEntity<List<PublisherResponseDTO>> getAllPublishers() {
-        return ResponseEntity.ok(publisherService.getAllPublishers());
+    public ResponseEntity<List<PublisherResponseDTO>> getAll() {
+        return ResponseEntity.ok(publisherService.getAll());
     }
 
-    /**
-     * UPDATE
-     */
+    @GetMapping("/{id}")
+    public ResponseEntity<PublisherResponseDTO> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(publisherService.getById(id));
+    }
+
     @PutMapping("/{id}")
-    public ResponseEntity<PublisherResponseDTO> updatePublisher(
+    public ResponseEntity<PublisherResponseDTO> update(
             @PathVariable Long id,
-            @RequestBody @Valid PublisherRequestDTO dto) {
+            @RequestBody @Valid PublisherRequestDTO request) {
 
-        PublisherResponseDTO updated = publisherService.updatePublisher(id, dto);
-        return ResponseEntity.ok(updated);
+        return ResponseEntity.ok(publisherService.update(id, request));
     }
 
-    /**
-     * DELETE
-     */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePublisher(@PathVariable Long id) {
-        publisherService.deletePublisher(id);
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        publisherService.delete(id);
         return ResponseEntity.noContent().build();
     }
 }

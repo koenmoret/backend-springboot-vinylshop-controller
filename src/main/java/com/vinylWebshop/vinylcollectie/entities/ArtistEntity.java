@@ -2,20 +2,23 @@ package com.vinylWebshop.vinylcollectie.entities;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "publishers")
-public class PublisherEntity extends BaseEntity {
+@Table(name = "artists")
+public class ArtistEntity extends BaseEntity {
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String name;
 
-    @OneToMany(mappedBy = "publisher")
+    @Column(length = 2000)
+    private String biography;
+
+    @ManyToMany(mappedBy = "artists")
     private List<AlbumEntity> albums = new ArrayList<>();
 
     public String getName() {
@@ -26,8 +29,11 @@ public class PublisherEntity extends BaseEntity {
         this.name = name;
     }
 
-    public List<AlbumEntity> getAlbums() {
-        return albums;
+    public String getBiography() {
+        return biography;
+    }
+
+    public void setBiography(String biography) {
+        this.biography = biography;
     }
 }
-

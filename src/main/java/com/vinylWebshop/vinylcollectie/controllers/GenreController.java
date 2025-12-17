@@ -2,9 +2,8 @@ package com.vinylWebshop.vinylcollectie.controllers;
 
 import com.vinylWebshop.vinylcollectie.dtos.genre.GenreRequestDTO;
 import com.vinylWebshop.vinylcollectie.dtos.genre.GenreResponseDTO;
-import com.vinylWebshop.vinylcollectie.services.GenreService;
 import com.vinylWebshop.vinylcollectie.helpers.UrlHelper;
-
+import com.vinylWebshop.vinylcollectie.services.GenreService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,51 +22,37 @@ public class GenreController {
         this.urlHelper = urlHelper;
     }
 
-    /**
-     * CREATE (POST)
-     * Ontvangt een GenreRequestDTO → valideert → maakt nieuw genre → returned ResponseDTO
-     */
     @PostMapping
-    public ResponseEntity<GenreResponseDTO> createGenre(@RequestBody @Valid GenreRequestDTO genreModel) {
-        GenreResponseDTO newGenre = genreService.createGenre(genreModel);
-        return ResponseEntity.created(urlHelper.getCurrentUrlWithId(newGenre.getId()))
-                .body(newGenre);
+    public ResponseEntity<GenreResponseDTO> create(
+            @RequestBody @Valid GenreRequestDTO request) {
+
+        GenreResponseDTO created = genreService.create(request);
+        return ResponseEntity
+                .created(urlHelper.getCurrentUrlWithId(created.getId()))
+                .body(created);
     }
 
-    /**
-     * READ (GET by id)
-     */
-    @GetMapping("/{id}")
-    public ResponseEntity<GenreResponseDTO> getGenre(@PathVariable Long id) {
-        return ResponseEntity.ok(genreService.getGenre(id));
-    }
-
-    /**
-     * READ ALL (GET all)
-     */
     @GetMapping
-    public ResponseEntity<List<GenreResponseDTO>> getAllGenres() {
-        return ResponseEntity.ok(genreService.getAllGenres());
+    public ResponseEntity<List<GenreResponseDTO>> getAll() {
+        return ResponseEntity.ok(genreService.getAll());
     }
 
-    /**
-     * UPDATE (PUT)
-     */
+    @GetMapping("/{id}")
+    public ResponseEntity<GenreResponseDTO> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(genreService.getById(id));
+    }
+
     @PutMapping("/{id}")
-    public ResponseEntity<GenreResponseDTO> updateGenre(
+    public ResponseEntity<GenreResponseDTO> update(
             @PathVariable Long id,
-            @RequestBody @Valid GenreRequestDTO genreModel) {
+            @RequestBody @Valid GenreRequestDTO request) {
 
-        GenreResponseDTO updated = genreService.updateGenre(id, genreModel);
-        return ResponseEntity.ok(updated);
+        return ResponseEntity.ok(genreService.update(id, request));
     }
 
-    /**
-     * DELETE
-     */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteGenre(@PathVariable Long id) {
-        genreService.deleteGenre(id);
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        genreService.delete(id);
         return ResponseEntity.noContent().build();
     }
 }

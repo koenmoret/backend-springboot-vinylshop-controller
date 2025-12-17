@@ -2,8 +2,11 @@ package com.vinylWebshop.vinylcollectie.services;
 
 import com.vinylWebshop.vinylcollectie.dtos.publisher.PublisherRequestDTO;
 import com.vinylWebshop.vinylcollectie.dtos.publisher.PublisherResponseDTO;
+import com.vinylWebshop.vinylcollectie.entities.AlbumEntity;
 import com.vinylWebshop.vinylcollectie.entities.PublisherEntity;
+import com.vinylWebshop.vinylcollectie.exceptions.ResourceNotFoundException;
 import com.vinylWebshop.vinylcollectie.mappers.PublisherDTOMapper;
+import com.vinylWebshop.vinylcollectie.repositories.AlbumRepository;
 import com.vinylWebshop.vinylcollectie.repositories.PublisherRepository;
 import org.springframework.stereotype.Service;
 
@@ -13,59 +16,57 @@ import java.util.List;
 public class PublisherService {
 
     private final PublisherRepository publisherRepository;
-    private final PublisherDTOMapper publisherDTOMapper;
+    private final AlbumRepository albumRepository;
+    private final PublisherDTOMapper publisherMapper;
 
-    public PublisherService(PublisherRepository publisherRepository, PublisherDTOMapper publisherDTOMapper) {
+    public PublisherService(PublisherRepository publisherRepository, AlbumRepository albumRepository, PublisherDTOMapper publisherMapper) {
         this.publisherRepository = publisherRepository;
-        this.publisherDTOMapper = publisherDTOMapper;
+        this.albumRepository = albumRepository;
+        this.publisherMapper = publisherMapper;
     }
 
-    /**
-     * Maak nieuwe publisher aan
-     */
-    public PublisherResponseDTO createPublisher(PublisherRequestDTO dto) {
-        PublisherEntity entity = publisherDTOMapper.mapToEntity(dto);
-        entity = publisherRepository.save(entity);
-        return publisherDTOMapper.mapToDto(entity);
+    public List<PublisherResponseDTO> getAll() {
+        return publisherRepository.findAll()
+                .stream()
+                .map(publisherMapper::toDto)
+                .toList();
     }
 
-    /**
-     * Ophalen van één publisher
-     */
-    public PublisherResponseDTO getPublisher(Long id) {
+    public PublisherResponseDTO getById(Long id) {
         PublisherEntity entity = publisherRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Publisher not found: " + id));
-        return publisherDTOMapper.mapToDto(entity);
+                .orElseThrow(() -> new ResourceNotFoundException("Publisher %d niet gevonden".formatted(id)));
+        return publisherMapper.toDto(entity);
     }
 
-    /**
-     * Ophalen van alle publishers
-     */
-    public List<PublisherResponseDTO> getAllPublishers() {
-        List<PublisherEntity> entities = publisherRepository.findAll();
-        return publisherDTOMapper.mapToDto(entities);
+    public PublisherResponseDTO create(PublisherRequestDTO request) {
+        PublisherEntity entity = new PublisherEntity();
+        publisherMapper.copyToEntity(request, entity);
+
+        PublisherEntity saved = publisherRepository.save(entity);
+        return publisherMapper.toDto(saved);
     }
 
-    /**
-     * Updaten van een publisher
-     */
-    public PublisherResponseDTO updatePublisher(Long id, PublisherRequestDTO dto) {
+    public PublisherResponseDTO update(Long id, PublisherRequestDTO request) {
         PublisherEntity entity = publisherRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Publisher not found: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Publisher %d niet gevonden".formatted(id)));
 
-        entity.setName(dto.getName());
-        entity.setAddress(dto.getAddress());
-        entity.setContactDetails(dto.getContactDetails());
-
-        PublisherEntity updated = publisherRepository.save(entity);
-
-        return publisherDTOMapper.mapToDto(updated);
+        publisherMapper.copyToEntity(request, entity);
+        PublisherEntity saved = publisherRepository.save(entity);
+        return publisherMapper.toDto(saved);
     }
 
-    /**
-     * Verwijderen van een publisher
-     */
-    public void deletePublisher(Long id) {
-        publisherRepository.deleteById(id);
+    public void delete(Long id) {
+        PublisherEntity publisher = publisherRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Publisher %d niet gevonden".formatted(id)));
+
+        // Relatie verbreken
+        for (AlbumEntity album : publisher.getAlbums()) {
+            album.setPublisher(null);
+            albumRepository.save(album);
+        }
+
+        publisherRepository.delete(publisher);
     }
+
 }

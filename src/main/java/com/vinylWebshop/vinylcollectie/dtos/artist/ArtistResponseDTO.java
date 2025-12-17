@@ -1,10 +1,10 @@
-package com.vinylWebshop.vinylcollectie.dtos.genre;
+package com.vinylWebshop.vinylcollectie.dtos.artist;
 
-public class GenreResponseDTO {
+public class ArtistResponseDTO {
 
     private Long id;
     private String name;
-    private String description;
+    private String biography;
 
     public Long getId() {
         return id;
@@ -22,11 +22,11 @@ public class GenreResponseDTO {
         this.name = name;
     }
 
-    public String getDescription() {
-        return description;
+    public String getBiography() {
+        return biography;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setBiography(String biography) {
+        this.biography = biography;
     }
 }
